@@ -1,4 +1,5 @@
 package io.bankbridge;
+
 import static spark.Spark.get;
 import static spark.Spark.port;
 
@@ -8,7 +9,6 @@ import io.bankbridge.handler.BanksRemoteCalls;
 public class Main {
 
 	public static void main(String[] args) throws Exception {
-
 		port(8080);
 
 		BanksCacheBased.init();

@@ -1,4 +1,5 @@
 package io.bankbridge.handler;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,22 +20,22 @@ import spark.Request;
 import spark.Response;
 
 public class BanksCacheBased {
-
-
 	public static CacheManager cacheManager;
 
 	public static void init() throws Exception {
 		cacheManager = CacheManagerBuilder
 				.newCacheManagerBuilder().withCache("banks", CacheConfigurationBuilder
-						.newCacheConfigurationBuilder(String.class, String.class, ResourcePoolsBuilder.heap(10)))
+				.newCacheConfigurationBuilder(String.class, String.class, ResourcePoolsBuilder.heap(10)))
 				.build();
 		cacheManager.init();
 		Cache cache = cacheManager.getCache("banks", String.class, String.class);
 		try {
 			BankModelList models = new ObjectMapper().readValue(
-					Thread.currentThread().getContextClassLoader().getResource("banks-v1.json"), BankModelList.class);
-			for (BankModel model : models.banks) {
-				cache.put(model.bic, model.name);
+					Thread.currentThread().getContextClassLoader().getResource("banks-v1.json"),
+					BankModelList.class
+			);
+			for (BankModel model : models.getBanks()) {
+				cache.put(model.getBic(), model.getName());
 			}
 		} catch (Exception e) {
 			throw e;
@@ -42,7 +43,6 @@ public class BanksCacheBased {
 	}
 
 	public static String handle(Request request, Response response) {
-
 		List<Map> result = new ArrayList<>();
 		cacheManager.getCache("banks", String.class, String.class).forEach(entry -> {
 			Map map = new HashMap<>();
@@ -56,7 +56,5 @@ public class BanksCacheBased {
 		} catch (JsonProcessingException e) {
 			throw new RuntimeException("Error while processing request");
 		}
-
 	}
-
 }
