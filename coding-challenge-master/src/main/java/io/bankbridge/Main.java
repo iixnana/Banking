@@ -8,7 +8,7 @@ import io.bankbridge.handler.BanksRemoteCalls;
 public class Main {
 
 	public static void main(String[] args) throws Exception {
-		
+
 		port(8080);
 
 		BanksCacheBased.init();
