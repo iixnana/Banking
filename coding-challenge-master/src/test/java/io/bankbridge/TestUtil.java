@@ -87,8 +87,7 @@ public class TestUtil {
                 return new Gson().fromJson(this.body, List.class);
             } catch (JsonSyntaxException e) {
                 System.out.println(
-                        "Could not parse body as JSON. Body is not a list, try using getJson() instead.\n" +
-                        "Error message: " + e.getMessage()
+                        "Could not parse body as JSON. Error message: " + e.getMessage()
                 );
                 return null;
             }
@@ -120,8 +119,7 @@ public class TestUtil {
                 return new Gson().fromJson(this.body, HashMap.class);
             } catch (JsonSyntaxException e) {
                 System.out.println(
-                        "Could not parse body as JSON. Body might be a list, try using getJsonList() instead.\n" +
-                                "Error message: " + e.getMessage()
+                        "Could not parse body as JSON. Error message: " + e.getMessage()
                 );
                 return null;
             }
