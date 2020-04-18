@@ -33,7 +33,7 @@ public class BanksRemoteCallsTest {
         TestUtil.TestResponse response = TestUtil.request("GET", route);
 
         assertEquals(200, response.getStatus());
-        List<Map<String, String>> result = response.getJsonList();
+        List<Map<String, String>> result = (List<Map<String, String>>) response.getJson();
         assertNotNull(result);
         for (Map<String, String> element : result) {
             assertNotNull(element.get("id"));
