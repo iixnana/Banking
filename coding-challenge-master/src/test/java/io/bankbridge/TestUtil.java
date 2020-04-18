@@ -1,7 +1,6 @@
 package io.bankbridge;
 
 import spark.utils.IOUtils;
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
@@ -26,10 +25,9 @@ public class TestUtil {
             } else if (isBodyJsonHashMap(body)) {
                 return new ResponseJsonHashMap(connection.getResponseCode(), body);
             } else {
-                throw new RuntimeException("Not implemented");
+                throw new RuntimeException("Not implemented.");
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
             fail("Could not fulfill the request: " + e.getMessage());
             return null;
         }
@@ -83,9 +81,7 @@ public class TestUtil {
             try {
                 return new ObjectMapper().readValue(this.body, List.class);
             } catch (Exception e) {
-                System.out.println(
-                        "Could not parse body as JSON. Error message: " + e.getMessage()
-                );
+                System.out.println("Could not parse body as JSON. Error message: " + e.getMessage());
                 return null;
             }
         }
@@ -115,9 +111,7 @@ public class TestUtil {
             try {
                 return new ObjectMapper().readValue(this.body, HashMap.class);
             } catch (Exception e) {
-                System.out.println(
-                        "Could not parse body as JSON. Error message: " + e.getMessage()
-                );
+                System.out.println("Could not parse body as JSON. Error message: " + e.getMessage());
                 return null;
             }
         }

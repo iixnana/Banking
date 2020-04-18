@@ -1,4 +1,5 @@
 package io.bankbridge.handler;
+
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -15,12 +16,13 @@ import spark.Request;
 import spark.Response;
 
 public class BanksRemoteCalls {
-
 	private static Map config;
 
 	public static void init() throws Exception {
-		config = new ObjectMapper()
-				.readValue(Thread.currentThread().getContextClassLoader().getResource("banks-v2.json"), Map.class);
+		config = new ObjectMapper().readValue(
+				Thread.currentThread().getContextClassLoader().getResource("banks-v2.json"),
+				Map.class
+		);
 	}
 
 	public static String handle(Request request, Response response) {
@@ -33,8 +35,8 @@ public class BanksRemoteCalls {
 			try {
 				HttpResponse<String> res = client.send(apiRequest, HttpResponse.BodyHandlers.ofString());
 				Map apiResult = new ObjectMapper().readValue(res.body(), Map.class);
-				Map map = new HashMap<>();
 				if (apiResult.keySet().contains("bic")) {
+					Map map = new HashMap<>();
 					map.put("id", apiResult.get("bic"));
 					map.put("name", key);
 					result.add(map);
