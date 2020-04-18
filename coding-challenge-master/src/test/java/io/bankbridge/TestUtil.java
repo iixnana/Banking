@@ -1,16 +1,13 @@
 package io.bankbridge;
 
-import com.google.gson.JsonSyntaxException;
 import spark.utils.IOUtils;
-
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import com.google.gson.Gson;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import static org.junit.Assert.fail;
 
 public class TestUtil {
@@ -40,18 +37,18 @@ public class TestUtil {
 
     private static boolean isBodyJsonList(String body) {
         try {
-            new Gson().fromJson(body, List.class);
+            new ObjectMapper().readValue(body, List.class);
             return true;
-        } catch (JsonSyntaxException e) {
+        } catch (Exception e) {
             return false;
         }
     }
 
     private static boolean isBodyJsonHashMap(String body) {
         try {
-            new Gson().fromJson(body, HashMap.class);
+            new ObjectMapper().readValue(body, HashMap.class);
             return true;
-        } catch (JsonSyntaxException e) {
+        } catch (Exception e) {
             return false;
         }
     }
@@ -84,8 +81,8 @@ public class TestUtil {
         @Override
         public List<Map<String, String>> getJson() {
             try {
-                return new Gson().fromJson(this.body, List.class);
-            } catch (JsonSyntaxException e) {
+                return new ObjectMapper().readValue(this.body, List.class);
+            } catch (Exception e) {
                 System.out.println(
                         "Could not parse body as JSON. Error message: " + e.getMessage()
                 );
@@ -116,8 +113,8 @@ public class TestUtil {
         @Override
         public Map<String, String> getJson() {
             try {
-                return new Gson().fromJson(this.body, HashMap.class);
-            } catch (JsonSyntaxException e) {
+                return new ObjectMapper().readValue(this.body, HashMap.class);
+            } catch (Exception e) {
                 System.out.println(
                         "Could not parse body as JSON. Error message: " + e.getMessage()
                 );
