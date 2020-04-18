@@ -1,27 +1,31 @@
 package io.bankbridge;
-import static spark.Spark.get;
-import static spark.Spark.port;
+
+import spark.Service;
 
 public class MockRemotes {
+	private static Service http;
 
 	public static void main(String[] args) throws Exception {
-		
-		port(1234);
+		http = Service.ignite().port(1234).threadPool(10);
 
-		get("/rbb", (request, response) -> "{\n" + 
+		http.get("/rbb", (request, response) -> "{\n" +
 				"\"bic\":\"1234\",\n" + 
 				"\"countryCode\":\"GB\",\n" + 
 				"\"auth\":\"OAUTH\"\n" + 
 				"}");
-		get("/cs", (request, response) -> "{\n" + 
+		http.get("/cs", (request, response) -> "{\n" +
 				"\"bic\":\"5678\",\n" + 
 				"\"countryCode\":\"CH\",\n" + 
 				"\"auth\":\"OpenID\"\n" + 
 				"}");
-		get("/bes", (request, response) -> "{\n" + 
+		http.get("/bes", (request, response) -> "{\n" +
 				"\"name\":\"Banco de espiritu santo\",\n" + 
 				"\"countryCode\":\"PT\",\n" + 
 				"\"auth\":\"SSL\"\n" + 
 				"}");
+	}
+
+	public static void stop(){
+		http.stop();
 	}
 }
