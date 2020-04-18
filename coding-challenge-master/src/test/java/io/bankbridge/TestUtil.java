@@ -24,7 +24,13 @@ public class TestUtil {
             connection.setDoOutput(true);
             connection.connect();
             String body = IOUtils.toString(connection.getInputStream());
-            return new TestResponse(connection.getResponseCode(), body);
+            if (isBodyJsonList(body)){
+                return new ResponseJsonList(connection.getResponseCode(), body);
+            } else if (isBodyJsonHashMap(body)) {
+                return new ResponseJsonHashMap(connection.getResponseCode(), body);
+            } else {
+                throw new RuntimeException("Not implemented");
+            }
         } catch (IOException e) {
             e.printStackTrace();
             fail("Could not fulfill the request: " + e.getMessage());
@@ -32,24 +38,51 @@ public class TestUtil {
         }
     }
 
-    public static class TestResponse {
+    private static boolean isBodyJsonList(String body) {
+        try {
+            new Gson().fromJson(body, List.class);
+            return true;
+        } catch (JsonSyntaxException e) {
+            return false;
+        }
+    }
+
+    private static boolean isBodyJsonHashMap(String body) {
+        try {
+            new Gson().fromJson(body, HashMap.class);
+            return true;
+        } catch (JsonSyntaxException e) {
+            return false;
+        }
+    }
+
+    public static abstract class TestResponse {
+        abstract int getStatus();
+        abstract String getBody();
+        abstract Object getJson();
+    }
+
+    private static class ResponseJsonList extends TestResponse {
         private final String body;
         private final int status;
 
-        public TestResponse(int status, String body) {
+        public ResponseJsonList(int status, String body) {
             this.status = status;
             this.body = body;
         }
 
+        @Override
         public int getStatus() {
             return this.status;
         }
 
+        @Override
         public String getBody() {
             return this.body;
         }
 
-        public List<Map<String, String>> getJsonList() {
+        @Override
+        public List<Map<String, String>> getJson() {
             try {
                 return new Gson().fromJson(this.body, List.class);
             } catch (JsonSyntaxException e) {
@@ -60,14 +93,35 @@ public class TestUtil {
                 return null;
             }
         }
+    }
 
+    private static class ResponseJsonHashMap extends TestResponse {
+        private final String body;
+        private final int status;
+
+        public ResponseJsonHashMap(int status, String body) {
+            this.status = status;
+            this.body = body;
+        }
+
+        @Override
+        public int getStatus() {
+            return this.status;
+        }
+
+        @Override
+        public String getBody() {
+            return this.body;
+        }
+
+        @Override
         public Map<String, String> getJson() {
             try {
                 return new Gson().fromJson(this.body, HashMap.class);
             } catch (JsonSyntaxException e) {
                 System.out.println(
                         "Could not parse body as JSON. Body might be a list, try using getJsonList() instead.\n" +
-                        "Error message: " + e.getMessage()
+                                "Error message: " + e.getMessage()
                 );
                 return null;
             }
