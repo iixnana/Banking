@@ -1,11 +1,11 @@
-package io.bankbridge;
+package io.bankbridge.TestUtil.Mock;
 
 import spark.Service;
 
 public class MockRemotes {
 	private static Service http;
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) {
 		http = Service.ignite().port(1234).threadPool(20);
 
 		http.get("/rbb", (request, response) -> "{\n" +
@@ -28,6 +28,7 @@ public class MockRemotes {
 				"\"countryCode\":\"PT\",\n" + 
 				"\"auth\":\"SSL\"\n" + 
 				"}");
+		http.get("/heartbeat", (request, response) -> "");
 	}
 
 	public static void stop(){
