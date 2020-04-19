@@ -1,8 +1,7 @@
 package io.bankbridge.BanksRemoteCalls;
 
 import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static spark.Spark.awaitInitialization;
 import static spark.Spark.stop;
 

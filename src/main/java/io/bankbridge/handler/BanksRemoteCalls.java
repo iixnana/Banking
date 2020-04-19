@@ -9,6 +9,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,26 +38,35 @@ public class BanksRemoteCalls {
 	public String handle(Request request, Response response) {
 		HttpClient client = HttpClient.newHttpClient();
 		List<Map<String, String>> result = new ArrayList<>();
-		Map<String, String> map = new HashMap<>();
-		config.forEach((key, entry) -> {
-			HttpRequest apiRequest = HttpRequest.newBuilder()
-					.uri(URI.create(entry))
-					.build();
-			try {
-				HttpResponse<String> res = client.send(apiRequest, HttpResponse.BodyHandlers.ofString());
-				Map<String, String> apiResult = objectMapper.readValue(res.body(), Map.class);
-				if (apiResult.keySet().contains("bic")) {
-					map.put("id", apiResult.get("bic"));
-					map.put("name", key);
-					result.add(map);
-				}
-			} catch (IOException | InterruptedException e) {
-				throw new RuntimeException("Error while processing request");
-			}
-		});
+		//Concurrent async calls to an external API
+		List<CompletableFuture<Map<String, String>>> apiResultsFutures = config
+				.entrySet()
+				.stream()
+				.map(entry -> CompletableFuture.supplyAsync(() -> {
+					HttpRequest apiRequest = HttpRequest.newBuilder().uri(URI.create(entry.getValue())).build();
+					try {
+						HttpResponse<String> res = client.send(apiRequest, HttpResponse.BodyHandlers.ofString());
+						Map<String, String> responseJson = objectMapper.readValue(res.body(), Map.class);
+						if (responseJson.keySet().contains("bic")) {
+							Map<String, String> map = new HashMap<>();
+							map.put("id", responseJson.get("bic"));
+							map.put("name", entry.getKey());
+							return map;
+						}
+					} catch (IOException | InterruptedException e) {
+						throw new RuntimeException("Error while processing request");
+					}
+					return null;}))
+				.collect(Collectors.toList());
 		try {
+			CompletableFuture.allOf(
+					apiResultsFutures.toArray(new CompletableFuture[apiResultsFutures.size()])
+			).orTimeout(10, TimeUnit.MINUTES).get();
+			for (CompletableFuture<Map<String, String>> apiAsyncCallResult : apiResultsFutures) {
+				result.add(apiAsyncCallResult.get());
+			}
 			return objectMapper.writeValueAsString(result);
-		} catch (JsonProcessingException e) {
+		} catch (JsonProcessingException | InterruptedException | ExecutionException e) {
 			throw new RuntimeException("Error while processing request");
 		}
 	}

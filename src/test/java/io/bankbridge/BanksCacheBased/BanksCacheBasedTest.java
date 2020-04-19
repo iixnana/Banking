@@ -1,8 +1,7 @@
 package io.bankbridge.BanksCacheBased;
 
 import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static spark.Spark.awaitInitialization;
 import static spark.Spark.stop;
 
@@ -24,6 +23,7 @@ import spark.Response;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class BanksCacheBasedTest {
     private BanksCacheBased banksCacheBased;
