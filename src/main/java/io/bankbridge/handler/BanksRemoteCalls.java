@@ -1,5 +1,6 @@
 package io.bankbridge.handler;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -16,38 +17,42 @@ import spark.Request;
 import spark.Response;
 
 public class BanksRemoteCalls {
-	private static Map config;
+	private Map<String, String> config;
+	private final ObjectMapper objectMapper = new ObjectMapper();
 
-	public static void init() throws Exception {
-		config = new ObjectMapper().readValue(
-				Thread.currentThread().getContextClassLoader().getResource("banks-v2.json"),
-				Map.class
-		);
+	public BanksRemoteCalls() {
+		try {
+			config = objectMapper.readValue(
+					Thread.currentThread().getContextClassLoader().getResource("banks-v2.json"),
+					Map.class
+			);
+		} catch (IOException e) {
+			throw new RuntimeException("Error while reading data");
+		}
 	}
 
-	public static String handle(Request request, Response response) {
+	public String handle(Request request, Response response) {
 		HttpClient client = HttpClient.newHttpClient();
-		List<Map> result = new ArrayList<>();
+		List<Map<String, String>> result = new ArrayList<>();
+		Map<String, String> map = new HashMap<>();
 		config.forEach((key, entry) -> {
 			HttpRequest apiRequest = HttpRequest.newBuilder()
-					.uri(URI.create((String) entry))
+					.uri(URI.create(entry))
 					.build();
 			try {
 				HttpResponse<String> res = client.send(apiRequest, HttpResponse.BodyHandlers.ofString());
-				Map apiResult = new ObjectMapper().readValue(res.body(), Map.class);
+				Map<String, String> apiResult = objectMapper.readValue(res.body(), Map.class);
 				if (apiResult.keySet().contains("bic")) {
-					Map map = new HashMap<>();
 					map.put("id", apiResult.get("bic"));
 					map.put("name", key);
 					result.add(map);
 				}
-			} catch (Exception e) {
+			} catch (IOException | InterruptedException e) {
 				throw new RuntimeException("Error while processing request");
 			}
 		});
 		try {
-			String resultAsString = new ObjectMapper().writeValueAsString(result);
-			return resultAsString;
+			return objectMapper.writeValueAsString(result);
 		} catch (JsonProcessingException e) {
 			throw new RuntimeException("Error while processing request");
 		}
