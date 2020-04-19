@@ -1,6 +1,5 @@
 package io.bankbridge.TestUtil.SparkManager;
 
-import io.bankbridge.Main;
 import io.bankbridge.TestUtil.Mock.MockRemotes;
 
 import java.io.IOException;
@@ -36,7 +35,7 @@ public class MockRemotesSparkManager extends SparkManager {
             HttpURLConnection con = (HttpURLConnection) new URL(
                     "http",
                     host,
-                    sparkport,
+                    port,
                     heartBeatPath
             ).openConnection();
             return con.getResponseCode() == 200;

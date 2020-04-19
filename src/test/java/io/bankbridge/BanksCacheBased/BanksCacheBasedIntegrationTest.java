@@ -1,21 +1,19 @@
 package io.bankbridge.BanksCacheBased;
 
-import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static spark.Spark.awaitInitialization;
-import static spark.Spark.stop;
-
-import io.bankbridge.Main;
 import io.bankbridge.TestUtil.Http.HttpClient;
 import io.bankbridge.TestUtil.Http.HttpResponse;
 import io.bankbridge.TestUtil.SparkManager.BankbridgeSparkManager;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+
+import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class BanksCacheBasedIntegrationTest {
     private final static String host = "localhost";
@@ -42,10 +40,16 @@ public class BanksCacheBasedIntegrationTest {
 
         assertEquals(200, response.getStatus());
         List<Map<String, String>> result = (List<Map<String, String>>) response.getJson();
+        //Expecting result to be not null
         assertNotNull(result);
+        //Expecting more than zero elements
+        assertTrue(result.size() > 0);
+        //Check all keys and values for not null
         for (Map<String, String> element : result) {
             assertNotNull(element.get("id"));
             assertNotNull(element.get("name"));
         }
+        //Check if result doesn't contain duplicates
+        assertEquals(new HashSet<>(result).size(), result.size());
     }
 }

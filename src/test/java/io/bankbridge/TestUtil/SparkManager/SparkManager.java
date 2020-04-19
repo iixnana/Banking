@@ -10,13 +10,13 @@ import spark.Spark;
  * Code repository: https://github.com/eviltester/TestingApp
  */
 public abstract class SparkManager {
-    protected int sparkport = 4567;
+    protected int port = 4567;
 
     public abstract boolean isRunning();
     public abstract void startServer();
 
     public void startSparkAppIfNotRunning(int expectedPort) {
-        sparkport = expectedPort;
+        port = expectedPort;
         try {
             System.out.println("Checking if running for integration tests");
             if(!isRunning()) {
@@ -29,7 +29,7 @@ public abstract class SparkManager {
             System.out.println("TODO: Investigate - " + e.getMessage());
         }
         try {
-            sparkport = Spark.port();
+            port = Spark.port();
         } catch (Exception e) {
             System.out.println("Warning: could not get actual Spark port");
         }
@@ -76,6 +76,6 @@ public abstract class SparkManager {
     }
 
     public int getPort() {
-        return sparkport;
+        return port;
     }
 }

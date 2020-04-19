@@ -35,7 +35,7 @@ public class BankbridgeSparkManager extends SparkManager {
             HttpURLConnection con = (HttpURLConnection) new URL(
                     "http",
                     host,
-                    sparkport,
+                    port,
                     heartBeatPath
             ).openConnection();
             return con.getResponseCode() == 200;

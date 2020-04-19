@@ -38,7 +38,7 @@ public class BanksRemoteCalls {
 	public String handle(Request request, Response response) {
 		HttpClient client = HttpClient.newHttpClient();
 		List<Map<String, String>> result = new ArrayList<>();
-		//Concurrent async calls to an external API
+		//Concurrent async calls to external servers
 		List<CompletableFuture<Map<String, String>>> apiResultsFutures = config
 				.entrySet()
 				.stream()
@@ -56,7 +56,7 @@ public class BanksRemoteCalls {
 					} catch (IOException | InterruptedException e) {
 						throw new RuntimeException("Error while processing request");
 					}
-					return null;}))
+					return null; }))
 				.collect(Collectors.toList());
 		try {
 			CompletableFuture.allOf(
